@@ -38,7 +38,7 @@
             "fog": new Image(),
             "marker": new Image(),
             "trap": new Image()
-        }
+        };
         images.backgrounds[0].src = gamefolder + "back_0.png";
         images.backgrounds[1].src = gamefolder + "back_1.png";
         images.backgrounds[2].src = gamefolder + "back_2.png";
@@ -67,7 +67,7 @@
             {"id": 0, "name": "Nothing Special", "signal": "", "chance": 10},
             {"id": 1, "name": "Trap", "signal": "It's a trap!", "chance": 3},
             {"id": 2, "name": "Treasure Room", "signal": "GOLDDDDDD", "chance": 0.1}
-        ]
+        ];
         var totalSpecialChance = 0;
         for(var special in specialList){
             totalSpecialChance += specialList[special].chance;
@@ -77,10 +77,10 @@
             mouseX = e.clientX - rect.left;
             mouseY = e.clientY - rect.top;
             newMouseA = -1;
-            if (mouseX > elementSize*2/3 && mouseY > elementSize*1/3 & mouseY < elementSize*2/3){ newMouseA = 0;}
-            if (mouseY < elementSize*1/3 && mouseX > elementSize*1/3 & mouseX < elementSize*2/3){ newMouseA = 1;}
-            if (mouseX < elementSize*1/3 && mouseY > elementSize*1/3 & mouseY < elementSize*2/3){ newMouseA = 2;}
-            if (mouseY > elementSize*2/3 && mouseX > elementSize*1/3 & mouseX < elementSize*2/3){ newMouseA = 3;}
+            if (mouseX > elementSize*2/3 && mouseY > elementSize*1/3 && mouseY < elementSize*2/3){ newMouseA = 0;}
+            if (mouseY < elementSize*1/3 && mouseX > elementSize*1/3 && mouseX < elementSize*2/3){ newMouseA = 1;}
+            if (mouseX < elementSize*1/3 && mouseY > elementSize*1/3 && mouseY < elementSize*2/3){ newMouseA = 2;}
+            if (mouseY > elementSize*2/3 && mouseX > elementSize*1/3 && mouseX < elementSize*2/3){ newMouseA = 3;}
             if (newMouseA != mouseA){
                 mouseA = newMouseA;
                 draw();
@@ -206,7 +206,7 @@
             if (a != -1 && exists(player.x + dx, player.y + dy)){
                 player.x += dx;
                 player.y += dy;
-                player.visitedCoords.push([player.x, player.y])
+                player.visitedCoords.push([player.x, player.y]);
                 document.getElementById("info").innerHTML = getSpecialString(player.x, player.y);
                 draw();
             }
@@ -297,10 +297,10 @@
                     ctx.drawImage(images.marker, 200, 100);
                     break;
                 case 1:
-                    ctx.drawImage(images.marker, 100, 000);
+                    ctx.drawImage(images.marker, 100, 0);
                     break;
                 case 2:
-                    ctx.drawImage(images.marker, 000, 100);
+                    ctx.drawImage(images.marker, 0, 100);
                     break;
                 case 3:
                     ctx.drawImage(images.marker, 100, 200);
