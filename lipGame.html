@@ -50,7 +50,7 @@
         var player = {"x": 0, "y":0, "visitedCoords": [[0 ,0]], "inventory":[]};
         //Give starting weapon
         var club = {"dmg":0, "price":0}; //price could be used as score or maybe sold or bought or something like that
-        player.inventory.add(club);
+        player.inventory.push(club);
 
         //Make an empty grid
         var map = [];
@@ -162,7 +162,6 @@
                     var temp = {"x": x, "y": y, "background": 0, "special": 0};
                     var detBackgr = parseInt(Math.random() * 3);
                     var detSpecial = generateSpecial();
-                    console.log(detSpecial);
                     //Check if our special is not already on another block next to us
                     if ((detSpecial == 0) || !(getInformation(x-1, y).special == detSpecial || getInformation(x ,y-1).special == detSpecial)){
                         temp.special = detSpecial;
