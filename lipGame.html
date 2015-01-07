@@ -49,10 +49,41 @@
         images.trap.src = gamefolder + "trap.png";
 
         //Make a player object
-        var player = {"x": 0, "y":0, "visitedCoords": [[0 ,0]], "inventory":[]};
+        var player = {"x": 0, "y":0, "visitedCoords": [[0 ,0]], "inventory": [], "score": 0, "health": 100};
+        //Gives highest dmg weapon in player's inventory
+        function playerHighestDmg() {
+            var Item = player.inventory[0];
+            for(var i = 1; i < player.inventory.length; i++) {
+                if (player.inventory[i].dmg > Item.dmg) {
+                    Item = player.inventory[i];
+                }
+            }
+            return Item.dmg;
+        }
         //Give starting weapon
-        var club = {"dmg":0, "price":0}; //price could be used as score or maybe sold or bought or something like that
+        var club = {"dmg":1, "price":0}; //price could be used as score or maybe sold or bought or something like that
         player.inventory.push(club);
+        //Monster/enemy constructor object(?)
+        function Monster(x, y, dmg, health, id, swagger, carriedItem) {
+            //str = monster health; dmg = damage the monster does per turn; swagger = points allocated to player    x/y = position
+            this.dmg = dmg;
+            this.health = health;
+            this.id = id;
+            this.swagger = swagger; //TO BE used as score/money
+            this.carriedItem = carriedItem;
+            this.x = x;
+            this.y = y;
+            if (health <= 0) {
+                //monster is killed, drop carriedItem, allocated swagger to player
+                if (carriedItem != 0) {
+                    //if carriedItem is 0, do not add carriedItem to player.inventory
+                    player.inventory.push(carriedItem);
+                }
+                player.score += swagger;
+                //TODO remove monster
+            }
+            return this;
+        }
 
         //Make an empty grid
         var map = [];
@@ -66,13 +97,30 @@
             map.push(temp);
         }
 
-        console.log(map);
+        //Monsterlist   list with all monster in the game
+        var monsterList = [];
+
+        //returns a list with the whole combat log!
+        function combatLog(enemy, player) {
+            var combatLogArray = [];
+            combatLogArray.push("A monster has appeared and starts lashing out!");
+            while (enemy.health > 0 && player.health > 0) {
+                combatLogArray.push("The monster did " + enemy.dmg + " damage to you!");
+                player.health -= enemy.dmg;
+                combatLogArray.push("You have " + player.health + " left!");
+                combatLogArray.push('You lunge at the monster for' + playerHighestDmg() + 'damage!');
+                enemy.health -= playerHighestDmg();
+                //maybe add a string with some vague idea of the enemy his health? (str)
+            }
+            return combatLogArray;
+        }
 
         //SpecialList
         var specialList = [
             {"id": 0, "name": "Nothing Special", "signal": "", "chance": 10},
             {"id": 1, "name": "Trap", "signal": "It's a trap!", "chance": 3},
-            {"id": 2, "name": "Treasure Room", "signal": "GOLDDDDDD", "chance": 1}
+            {"id": 2, "name": "Treasure Room", "signal": "GOLDDDDDD", "chance": 1},
+            {"id": 3, "name": "Monster", "signal": "I smell a foul stetch! Bah", "chance": 3}
         ];
         var totalSpecialChance = 0;
         for(var special in specialList){
@@ -82,7 +130,7 @@
         function mouseMove(e){
             mouseX = e.clientX - rect.left;
             mouseY = e.clientY - rect.top;
-            newMouseA = -1;
+            var newMouseA = -1;
             if (mouseX > elementSize*2/3 && mouseY > elementSize/3 && mouseY < elementSize*2/3){ newMouseA = 0;}
             if (mouseY < elementSize/3 && mouseX > elementSize/3 && mouseX < elementSize*2/3){ newMouseA = 1;}
             if (mouseX < elementSize/3 && mouseY > elementSize/3 && mouseY < elementSize*2/3){ newMouseA = 2;}
@@ -96,7 +144,6 @@
         function mouseClick(e){
             mouseMove(e);
             move(mouseA);
-
         }
 
         function hasVisited(x, y){
@@ -121,7 +168,6 @@
         }
         function drawPixel (x, y, r, g, b, a) {
             var index = (x + y * canvasWidth) * 4;
-
             canvasData.data[index + 0] = r;
             canvasData.data[index + 1] = g;
             canvasData.data[index + 2] = b;
@@ -159,12 +205,16 @@
         function generateMap(){
             for ( var x = 0; x < gridWidth; x++){
                 for(var y = 0; y < gridHeight; y++){
-                    var temp = {"x": x, "y": y, "background": 0, "special": 0, "randomBackground": parseInt(Math.random()*3), "monster": null};
+                    var temp = {"x": x, "y": y, "background": 0, "special": 0, "randomBackground": parseInt(Math.random()*3), "monster": Monster};
                     var detBackgr = parseInt(Math.random() * 3);
                     var detSpecial = generateSpecial();
                     //Check if our special is not already on another block next to us
                     if ((detSpecial == 0) || !(getInformation(x-1, y).special == detSpecial || getInformation(x ,y-1).special == detSpecial)){
                         temp.special = detSpecial;
+                        if (temp.special == 3){
+                            temp.monster = new Monster(x, y, 1, 3, 0, 100, 0);
+                            monsterList.push(temp.monster);
+                        }
                     }
 
                     //background determination
