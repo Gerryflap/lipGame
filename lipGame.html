@@ -52,7 +52,7 @@
                     var club = {"dmg":1, "price":0}; //price could be used as score or maybe sold or bought or something like that
                     player.inventory.push(club);
                     //Monster/enemy constructor object(?)
-                    function monster(dmg, str, id, swagger, carriedItem, x, y) {
+                    function Monster(x, y, dmg, str, id, swagger, carriedItem) {
                         //str = monster health; dmg = damage the monster does per turn; swagger = points allocated to player    x/y = position
                         this.dmg = dmg;
                         this.str = str;
@@ -63,14 +63,21 @@
                         this.y = y;
                         if (str <= 0) {
                             //monster is killed, drop carriedItem, allocated swagger to player
-                            player.inventory.push(carriedItem);
+                            if (carriedItem != 0) {
+                                //if carriedItem is 0, do not add carriedItem to player.inventory
+                                player.inventory.push(carriedItem);
+                            }
                             player.score += swagger;
                             //TODO remove monster
                         }
                     }
 
                     //Monsterlist   list with all monster in the game
-                    var monsterList = []
+                    var monsterList = [
+                                        new Monster(1,1,1,3,0,100,0),
+                                        new Monster(2,0,1,3,1,100,0),
+                                        new Monster(0,2,1,3,2,100,0)
+                                       ];
 
                     //Make an empty grid
                     var map = [];
