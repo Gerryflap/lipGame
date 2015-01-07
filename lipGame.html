@@ -37,7 +37,8 @@
             ],
             "fog": new Image(),
             "marker": new Image(),
-            "trap": new Image()
+            "trap": new Image(),
+            "treasure": new Image()
         };
         for (var i =0; i < 3; i++){
             for (var j =0; j < 3; j++) {
@@ -47,6 +48,7 @@
         images.fog.src = gamefolder + "back_fog.png";
         images.marker.src = gamefolder + "marker.png";
         images.trap.src = gamefolder + "trap.png";
+        images.treasure.src = gamefolder + "treasure.png";
 
         //Make a player object
         var player = {"x": 0, "y":0, "visitedCoords": [[0 ,0]], "inventory": [], "score": 0, "health": 100};
@@ -323,10 +325,6 @@
         }
 
         function draw(){
-
-
-
-
             for ( var x = -1; x < 2; x++) {
                 for (var y = -1; y < 2; y++) {
                     if (( x == 0 && y == 0 )|| hasVisited(player.x + x, player.y + y)){
@@ -342,6 +340,9 @@
                                 break;
                             case 1:
                                 ctx.drawImage(images.trap, 50, 50, 100, 100);
+                                break;
+                            case 2:
+                                ctx.drawImage(images.treasure, 50, 50, 100, 100);
                                 break;
                         }
                     }
