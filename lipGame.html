@@ -48,6 +48,16 @@
 
                     //Make a player object
                     var player = {"x": 0, "y":0, "visitedCoords": [[0 ,0]], "inventory":[],"score":0};
+                    //Gives highest dmg weapon in player's inventory
+                    function playerHighestDmg() {
+                        var Item = player.inventory[0];
+                        for(var i = 1; i < player.inventory.length; i++) {
+                            if (player.inventory[i].dmg > Item.dmg) {
+                                Item = player.inventory[i];
+                            }
+                        }
+                        return Item.dmg;
+                    }
                     //Give starting weapon
                     var club = {"dmg":1, "price":0}; //price could be used as score or maybe sold or bought or something like that
                     player.inventory.push(club);
@@ -78,6 +88,17 @@
                                         new Monster(2,0,1,3,1,100,0),
                                         new Monster(0,2,1,3,2,100,0)
                                        ];
+
+                    function combatLog(enemy, player) {
+                        console.log("A monster has appeared and starts lashing out!");
+                        for (var i = 0; i < 0; i++) {
+                            console.log("The monster did" + enemy.dmg + "damage to you!");
+
+                            console.log('You lunge at the monster for' + playerHighestDmg() + 'damage!');
+
+                        }
+                    }
+
 
                     //Make an empty grid
                     var map = [];
