@@ -133,7 +133,7 @@
         }
 
         function getInformation(x, y){
-            if (x > 0 && x < gridWidth && y > 0 && y < gridHeight){
+            if (x >= 0 && x < gridWidth && y >= 0 && y < gridHeight){
                 return map[x][y];
             } else {
                return {"x": -1, "y":-1, "background": 0, "special": 0, "randomBackground": 0}
@@ -149,19 +149,17 @@
             list.push(getInformation(x, y+1).special);
             console.log(list);
             for (special in specialList){
-                console.log(special)
                 if(list.lastIndexOf(parseInt(special)) != -1){
                     outString += specialList[special].signal + "\n";
                 }
             }
-            console.log(outString);
             return outString;
         }
 
         function generateMap(){
             for ( var x = 0; x < gridWidth; x++){
                 for(var y = 0; y < gridHeight; y++){
-                    var temp = {"x": x, "y": y, "background": 0, "special": 0, "randomBackground": parseInt(Math.random()*3)};
+                    var temp = {"x": x, "y": y, "background": 0, "special": 0, "randomBackground": parseInt(Math.random()*3), "monster": null};
                     var detBackgr = parseInt(Math.random() * 3);
                     var detSpecial = generateSpecial();
                     //Check if our special is not already on another block next to us
