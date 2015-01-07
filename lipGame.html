@@ -36,7 +36,11 @@
         images.marker.src = gamefolder + "marker.png";
 
         //Make a player object
-        var player = {"x": 0, "y":0};
+        var player = {"x": 0, "y":0, "inventory":[]};
+        //Give starting weapon
+        var club = {"dmg":0, "price":0}; //price could be used as score or maybe sold or bought or something like that
+        player.inventory.add(club);
+
         //Make an empty grid
         var map = [];
         var gridWidth = 60;
