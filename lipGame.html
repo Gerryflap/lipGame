@@ -49,8 +49,28 @@
                     //Make a player object
                     var player = {"x": 0, "y":0, "visitedCoords": [[0 ,0]], "inventory":[],"score":0};
                     //Give starting weapon
-                    var club = {"dmg":0, "price":0}; //price could be used as score or maybe sold or bought or something like that
+                    var club = {"dmg":1, "price":0}; //price could be used as score or maybe sold or bought or something like that
                     player.inventory.push(club);
+                    //Monster/enemy constructor object(?)
+                    function monster(dmg, str, id, swagger, carriedItem, x, y) {
+                        //str = monster health; dmg = damage the monster does per turn; swagger = points allocated to player    x/y = position
+                        this.dmg = dmg;
+                        this.str = str;
+                        this.id = id;
+                        this.swagger = swagger; //TO BE used as score/money
+                        this.carriedItem = carriedItem;
+                        this.x = x;
+                        this.y = y;
+                        if (str <= 0) {
+                            //monster is killed, drop carriedItem, allocated swagger to player
+                            player.inventory.push(carriedItem);
+                            player.score += swagger;
+                            //TODO remove monster
+                        }
+                    }
+
+                    //Monsterlist   list with all monster in the game
+                    var monsterList = []
 
                     //Make an empty grid
                     var map = [];
@@ -71,6 +91,7 @@
                         {"id": 0, "name": "Nothing Special", "signal": "", "chance": 10},
                         {"id": 1, "name": "Trap", "signal": "It's a trap!", "chance": 3},
                         {"id": 2, "name": "Treasure Room", "signal": "GOLDDDDDD", "chance": 1}
+                        {"id": 3, "name": "Monster", "signal": "I smell a foul stetch! Bah~", "chance": 0}
                     ];
                     var totalSpecialChance = 0;
                     for(var special in specialList){
