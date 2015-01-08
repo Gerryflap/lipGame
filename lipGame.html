@@ -3,9 +3,6 @@
 <head lang="en">
     <meta charset="UTF-8">
     <title>lipGame</title>
-	<script src="Model.js" type="text/javascript"></script>
-	<script src="View.js" type="text/javascript"></script>
-	<script src="Controller.js" type="text/javascript"></script>
 </head>
 <body>
     <canvas id="mainCanvas" width = 200 height = 200 onmousemove="mouseMove(event)" onmouseup="mouseClick(event)" style="height:600px; width: 600px; image-rendering: pixelated;"></canvas>
@@ -16,50 +13,23 @@
         <p id="info"></p>
     </div>
     <script>
-        var canvas = document.getElementById("mainCanvas");
-        var canvasWidth = canvas.width;
-        var canvasHeight = canvas.height;
-        var ctx = canvas.getContext("2d");
-        var canvasData = ctx.getImageData(0, 0, canvasWidth, canvasHeight);
-        var rect = canvas.getBoundingClientRect();
-        ctx.imageSmoothingEnabled = false;
-        ctx.webkitImageSmoothingEnabled =false;
-        var mouseX = 0;
-        var mouseY = 0;
-        var mouseA = -1;
-        var elementSize = parseInt(canvas.style.height.substr(0,3));
-        //var gamefolder = "/projects/"
-        var gamefolder = "http://www.gerben-meijer.nl/projects/";
+        // Init_________________________________________________________________________________________________________
 
-        //Images
-        var images = {
-            "backgrounds": [
-                [new Image(), new Image(), new Image()],
-                [new Image(), new Image(), new Image()],
-                [new Image(), new Image(), new Image()]
-            ],
-            "fog": new Image(),
-            "marker": new Image(),
-            "trap": new Image(),
-            "treasure": new Image(),
-            "white": new Image()
-        };
-        for (var i =0; i < 3; i++){
-            for (var j =0; j < 3; j++) {
-                images.backgrounds[i][j].src = gamefolder + "back_" + (i+1) + "_" + (j+1) + ".png";
-            }
-        }
-        images.fog.src = gamefolder + "back_fog.png";
-        images.marker.src = gamefolder + "marker.png";
-        images.trap.src = gamefolder + "trap.png";
-        images.treasure.src = gamefolder + "treasure.png";
-        images.white.src = gamefolder + "white.png";
+        // Model init---------------------------------------------------------------------------------------------------
 
-		//-----------------------------------------------------------------------------------
+
+
+
+        //Make a player object
+        var player = {"x": 0, "y":0, "visitedCoords": [[0 ,0]], "inventory": [], "score": 0, "health": 100};
+
+        //Give starting weapon
+        var club = {"dmg":1, "price":0}; //price could be used as score or maybe sold or bought or something like that
+        player.inventory.push(club);
 
         //Make an empty grid
         var map = [];
-            var gridWidth = 250;
+        var gridWidth = 250;
         var gridHeight = 250;
         for (var i = 0; i < gridWidth; i++){
             var temp = [];
@@ -68,8 +38,6 @@
             }
             map.push(temp);
         }
-
-		//-----------------------------------------------------------------------------
 
         //SpecialList
         var specialList = [
@@ -83,23 +51,129 @@
             totalSpecialChance += specialList[special].chance;
         }
 
-        function mouseMove(e){
-            mouseX = e.clientX - rect.left;
-            mouseY = e.clientY - rect.top;
-            var newMouseA = -1;
-            if (mouseX > elementSize*2/3 && mouseY > elementSize/3 && mouseY < elementSize*2/3){ newMouseA = 0;}
-            if (mouseY < elementSize/3 && mouseX > elementSize/3 && mouseX < elementSize*2/3){ newMouseA = 1;}
-            if (mouseX < elementSize/3 && mouseY > elementSize/3 && mouseY < elementSize*2/3){ newMouseA = 2;}
-            if (mouseY > elementSize*2/3 && mouseX > elementSize/3 && mouseX < elementSize*2/3){ newMouseA = 3;}
-            if (newMouseA != mouseA){
-                mouseA = newMouseA;
-                draw();
+        //Monsterlist   list with all monster in the game
+        var monsterList = [];
+
+        // View init----------------------------------------------------------------------------------------------------
+
+
+
+
+        // View Image Loading ##########################################################################################
+
+        //used for image loading only! :
+        var gamefolder = "http://www.gerben-meijer.nl/projects/";
+
+        var images = {
+            "backgrounds": [
+                [new Image(), new Image(), new Image()],
+                [new Image(), new Image(), new Image()],
+                [new Image(), new Image(), new Image()]
+            ],
+            "fog": new Image(),
+            "marker": new Image(),
+            "trap": new Image(),
+            "treasure": new Image(),
+            "white": new Image(),
+            "player":   new Image(),
+            "monster": [
+                new Image()
+            ]
+        };
+        for (var i =0; i < 3; i++){
+            for (var j =0; j < 3; j++) {
+                images.backgrounds[i][j].src = gamefolder + "back_" + (i+1) + "_" + (j+1) + ".png";
             }
         }
+        for (var i =0; i < 1; i++){
+            images.backgrounds[i].src = gamefolder + "monster_" + (i+1) + "_" + (j+1) + ".png";
+        }
+        images.fog.src = gamefolder + "back_fog.png";
+        images.marker.src = gamefolder + "marker.png";
+        images.trap.src = gamefolder + "trap.png";
+        images.treasure.src = gamefolder + "treasure.png";
+        images.white.src = gamefolder + "white.png";
+        images.player.src = gamefolder + "player.png";
 
-        function mouseClick(e){
-            mouseMove(e);
-            move(mouseA);
+
+        // View vars ###################################################################################################
+        var canvas = document.getElementById("mainCanvas");
+        var canvasWidth = canvas.width;
+        var canvasHeight = canvas.height;
+        var ctx = canvas.getContext("2d");
+        var canvasData = ctx.getImageData(0, 0, canvasWidth, canvasHeight);
+        var rect = canvas.getBoundingClientRect();
+        ctx.imageSmoothingEnabled = false;
+        ctx.webkitImageSmoothingEnabled =false;
+        var elementSize = parseInt(canvas.style.height.substr(0,3));
+
+        // Controller init----------------------------------------------------------------------------------------------
+
+
+
+
+        var mouseX = 0;
+        var mouseY = 0;
+        var mouseA = -1;
+
+        // Methods______________________________________________________________________________________________________
+
+        // Model methods------------------------------------------------------------------------------------------------
+
+
+
+
+        //Gives highest dmg weapon in player's inventory
+        function playerHighestDmg() {
+            var Item = player.inventory[0];
+            for(var i = 1; i < player.inventory.length; i++) {
+                if (player.inventory[i].dmg > Item.dmg) {
+                    Item = player.inventory[i];
+                }
+            }
+            return Item.dmg;
+        }
+
+        //Monster/enemy object constructor
+        function Monster(x, y, dmg, health, id, swagger, carriedItem) {
+            //fields (in javascript: properties)
+            //str = monster health; dmg = damage the monster does per turn; swagger = points allocated to player    x/y = position
+            this.dmg = dmg;
+            this.health = health;
+            this.id = id;
+            this.swagger = swagger; //TO BE used as score/money
+            this.carriedItem = carriedItem;
+            this.x = x;
+            this.y = y;
+
+            //Methods:
+            this.checkHealth = new function() {
+
+                if (health <= 0) {
+                    //monster is killed, drop carriedItem, allocated swagger to player
+                    if (carriedItem != 0) {
+                        //if carriedItem is 0, do not add carriedItem to player.inventory
+                        player.inventory.push(carriedItem);
+                    }
+                    player.score += swagger;
+                    //TODO remove monster
+                }
+            };
+        }
+
+        //returns a list with the whole combat log!
+        function combatLog(enemy, player) {
+            var combatLogArray = [];
+            combatLogArray.push("A monster has appeared and starts lashing out!");
+            while (enemy.health > 0 && player.health > 0) {
+                combatLogArray.push("The monster did " + enemy.dmg + " damage to you!");
+                player.health -= enemy.dmg;
+                combatLogArray.push("You have " + player.health + " left!");
+                combatLogArray.push('You lunge at the monster for' + playerHighestDmg() + 'damage!');
+                enemy.health -= playerHighestDmg();
+                //maybe add a string with some vague idea of the enemy his health? (str)
+            }
+            return combatLogArray;
         }
 
         function hasVisited(x, y){
@@ -111,34 +185,15 @@
             return false;
         }
 
-        function rotateAndPaintImage ( context, image, angleInRad , positionX, positionY, axisX, axisY ) {
-            context.translate( positionX, positionY );
-            context.rotate( angleInRad );
-            context.drawImage( image, -axisX, -axisY );
-            context.rotate( -angleInRad );
-            context.translate( -positionX, -positionY );
-        }
-
         function exists(x, y){
             return (x >= 0 && x < gridWidth && y >= 0 && y < gridHeight);
-        }
-        function drawPixel (x, y, r, g, b, a) {
-            var index = (x + y * canvasWidth) * 4;
-            canvasData.data[index + 0] = r;
-            canvasData.data[index + 1] = g;
-            canvasData.data[index + 2] = b;
-            canvasData.data[index + 3] = a;
-        }
-
-        function updateCanvas() {
-            ctx.putImageData(canvasData, 0, 0);
         }
 
         function getInformation(x, y){
             if (x >= 0 && x < gridWidth && y >= 0 && y < gridHeight){
                 return map[x][y];
             } else {
-               return {"x": -1, "y":-1, "background": 0, "special": 0, "randomBackground": 0}
+                return {"x": -1, "y":-1, "background": 0, "special": 0, "randomBackground": 0}
             }
         }
 
@@ -149,7 +204,6 @@
             list.push(getInformation(x+1, y).special);
             list.push(getInformation(x, y-1).special);
             list.push(getInformation(x, y+1).special);
-            console.log(list);
             for (special in specialList){
                 if(list.lastIndexOf(parseInt(special)) != -1){
                     outString += specialList[special].signal + "\n";
@@ -157,6 +211,7 @@
             }
             return outString;
         }
+
 
         function generateMap(){
             for ( var x = 0; x < gridWidth; x++){
@@ -213,7 +268,7 @@
                     break;
                 default:
                     break;
-                }
+            }
             if (a != -1 && exists(player.x + dx, player.y + dy)){
                 player.x += dx;
                 player.y += dy;
@@ -232,6 +287,35 @@
                 }
             }
         }
+
+        // View methods-------------------------------------------------------------------------------------------------
+
+
+
+
+        function rotateAndPaintImage ( context, image, angleInRad , positionX, positionY, axisX, axisY ) {
+            context.translate( positionX, positionY );
+            context.rotate( angleInRad );
+            context.drawImage( image, -axisX, -axisY );
+            context.rotate( -angleInRad );
+            context.translate( -positionX, -positionY );
+        }
+
+
+        function drawPixel (x, y, r, g, b, a) {
+            var index = (x + y * canvasWidth) * 4;
+            canvasData.data[index + 0] = r;
+            canvasData.data[index + 1] = g;
+            canvasData.data[index + 2] = b;
+            canvasData.data[index + 3] = a;
+        }
+
+        function updateCanvas() {
+            ctx.putImageData(canvasData, 0, 0);
+        }
+
+
+
         function drawDot(x, y, w, h, r, g, b){
             for (var dx = 0; dx < w; dx++){
                 for (var dy = 0; dy < h; dy++){
@@ -324,13 +408,34 @@
 
         }
 
+        // Controller methods-------------------------------------------------------------------------------------------
 
 
 
+
+
+        function mouseMove(e){
+            mouseX = e.clientX - rect.left;
+            mouseY = e.clientY - rect.top;
+            var newMouseA = -1;
+            if (mouseX > elementSize*2/3 && mouseY > elementSize/3 && mouseY < elementSize*2/3){ newMouseA = 0;}
+            if (mouseY < elementSize/3 && mouseX > elementSize/3 && mouseX < elementSize*2/3){ newMouseA = 1;}
+            if (mouseX < elementSize/3 && mouseY > elementSize/3 && mouseY < elementSize*2/3){ newMouseA = 2;}
+            if (mouseY > elementSize*2/3 && mouseX > elementSize/3 && mouseX < elementSize*2/3){ newMouseA = 3;}
+            if (newMouseA != mouseA){
+                mouseA = newMouseA;
+                draw();
+            }
+        }
+
+        function mouseClick(e){
+            mouseMove(e);
+            move(mouseA);
+        }
+
+        //Game start____________________________________________________________________________________________________
         generateMap();
         draw();
-        console.log(map);
-        generateSpecial();
     </script>
 </body>
 </html>
