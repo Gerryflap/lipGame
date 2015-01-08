@@ -86,7 +86,7 @@
             }
         }
         for (var i =0; i < 1; i++){
-            images.backgrounds[i].src = gamefolder + "monster_" + (i+1) + "_" + (j+1) + ".png";
+            images.monster[i].src = gamefolder + "monster_" + (i+1)+".png";
         }
         images.fog.src = gamefolder + "back_fog.png";
         images.marker.src = gamefolder + "marker.png";
@@ -145,6 +145,7 @@
             this.carriedItem = carriedItem;
             this.x = x;
             this.y = y;
+            this.type = 0;
 
             //Methods:
             this.checkHealth = new function() {
@@ -241,6 +242,7 @@
                             break;
                         default:
                             console.log("Yeah, problems");
+                            break;
                     }
                     map[x][y] = temp;
 
@@ -381,6 +383,9 @@
                                 break;
                             case 2:
                                 ctx.drawImage(images.treasure, 50, 50, 100, 100);
+                                break;
+                            case 3:
+                                ctx.drawImage(images.monster[getInformation(player.x, player.y).monster.type], 50, 50, 100, 100);
                                 break;
                         }
                     } else {
