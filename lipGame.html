@@ -38,7 +38,8 @@
             "fog": new Image(),
             "marker": new Image(),
             "trap": new Image(),
-            "treasure": new Image()
+            "treasure": new Image(),
+            "white": new Image()
         };
         for (var i =0; i < 3; i++){
             for (var j =0; j < 3; j++) {
@@ -49,6 +50,7 @@
         images.marker.src = gamefolder + "marker.png";
         images.trap.src = gamefolder + "trap.png";
         images.treasure.src = gamefolder + "treasure.png";
+        images.white.src = gamefolder + "white.png";
 
         //Make a player object
         var player = {"x": 0, "y":0, "visitedCoords": [[0 ,0]], "inventory": [], "score": 0, "health": 100};
@@ -330,11 +332,11 @@
                     if (( x == 0 && y == 0 )|| hasVisited(player.x + x, player.y + y)){
                         ctx.drawImage(images.backgrounds[getInformation(player.x + x, player.y + y).background][getInformation(player.x + x, player.y + y).randomBackground], 50 + x*100, 50+ y*100, 100, 100);
                     } else {
-
-                        ctx.drawImage(images.fog, 50+x*100, 50+y*100, 100, 100)
+                        ctx.drawImage(images.white, 50+x*100, 50+y*100, 100, 100);
                     }
+
                     if (x == 0 && y == 0 ){
-                        switch(getInformation(player.x, player.y).special){
+                        switch(getInformation(player.x, player.y).special) {
                             case 0:
                                 //zweg
                                 break;
@@ -345,6 +347,8 @@
                                 ctx.drawImage(images.treasure, 50, 50, 100, 100);
                                 break;
                         }
+                    } else {
+                        ctx.drawImage(images.fog, 50+x*100, 50+y*100, 100, 100);
                     }
                 }
             }
