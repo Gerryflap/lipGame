@@ -5,14 +5,14 @@
     <title>lipGame</title>
 </head>
 <body>
-    <canvas id="mainCanvas" width = 200 height = 200 onmousemove="mouseMove(event)" onmouseup="mouseClick(event)" style="height:600px; width: 600px; image-rendering: pixelated;"></canvas>
-    <div>
+    <div style="width: 50%; float: left;">
+        <canvas id="mainCanvas" width = 200 height = 200 onmousemove="mouseMove(event)" onmouseup="mouseClick(event)" style="height:600px; width: 600px; image-rendering: pixelated;"></canvas>
         <p>Health:</P>
         <p id="health">100</p>
         <p>Block Information:</p>
         <p id="info"></p>
-        <p style="float: right;" id="battleLog"></p>
     </div>
+    <p style="width: 50%; float: right;" id="battleLog"></p>
     <script>
         // Init_________________________________________________________________________________________________________
 
@@ -23,7 +23,14 @@
             //Set the gamestate to 1, running
             gameState = 1;
             //Make a player object
-            player = {"x": 0, "y": 0, "visitedCoords": [[0, 0]], "inventory": [], "score": 0, "health": 100};
+            player = {"x": 0, "y": 0, "visitedCoords": [[0, 0]], "inventory": [], "score": 0, "health": 10};
+            player.setHealth = function (healthChange){
+                this.health += healthChange;
+                document.getElementById("health").innerHTML = this.health;
+                if (this.health <= 0){
+                    gameState = 0;
+                }
+            }
 
             //Give starting weapon
             club = {"dmg": 1, "price": 0}; //price could be used as score or maybe sold or bought or something like that
@@ -46,7 +53,8 @@
                 {"id": 0, "name": "Nothing Special", "signal": "", "chance": 10},
                 {"id": 1, "name": "Trap", "signal": "It's a trap!", "chance": 3},
                 {"id": 2, "name": "Treasure Room", "signal": "GOLDDDDDD", "chance": 1},
-                {"id": 3, "name": "Monster", "signal": "I smell a foul stetch! Bah", "chance": 3}
+                {"id": 3, "name": "Monster", "signal": "I smell a foul stetch! Bah", "chance": 3},
+                {"id": 4, "name": "Slain Monster", "signal": "A slain monster is nearby", "chance": 0}
             ];
             totalSpecialChance = 0;
             for (var special in specialList) {
@@ -84,7 +92,8 @@
             "monster": [
                 new Image()
             ],
-            "gameOver": new Image()
+            "gameOver": new Image(),
+            "monsterDead": new Image()
         };
         for (var i =0; i < 3; i++){
             for (var j =0; j < 3; j++) {
@@ -101,6 +110,7 @@
         images.white.src = gamefolder + "white.png";
         images.player.src = gamefolder + "player.png";
         images.gameOver.src = gamefolder + "gameOver.png";
+        images.monsterDead.src = gamefolder + "monster_dead.png";
 
 
 
@@ -156,9 +166,9 @@
             this.type = 0;
 
             //Methods:
-            function checkHealth(monster) {
-
-                if (monster.health <= 0) {
+            this.checkHealth = function()  {
+                console.log(this);
+                if (this.health <= 0) {
                     //monster is killed, drop carriedItem, allocate swagger to player
                     if (carriedItem != 0) {
                         //if carriedItem is 0, do not add carriedItem to player.inventory
@@ -166,14 +176,13 @@
                     }
                     player.score += swagger;
                     //remove both references to monster instance, in monsterList and map(?)
-                    //TODO remove monster
                     for (var i = 0; i < monsterList.length; i++) {
                         if (monsterList[i] == this) {
-                            monsterList.splice(i,1);
+                            monsterList[i] = null;
                         }
                     }
-                    getInformation(monster.x, monster.y).special = 0;
-                    getInformation(monster.x, monster.y).monster = null;
+                    getInformation(this.x, this.y).special = 4;
+                    getInformation(this.x, this.y).monster = null;
                 }
             }
         }
@@ -184,10 +193,11 @@
             combatLogArray.push("A monster has appeared and starts lashing out!");
             while (enemy.health > 0 && player.health > 0) {
                 combatLogArray.push("The monster did " + enemy.dmg + " damage to you!");
-                player.health -= enemy.dmg;
+                player.setHealth(-enemy.dmg);
                 combatLogArray.push("You have " + player.health + " left!");
                 combatLogArray.push('You lunge at the monster for ' + playerHighestDmg() + ' damage!');
                 enemy.health -= playerHighestDmg();
+                enemy.checkHealth();
                 //maybe add a string with some vague idea of the enemy his health? (str)
             }
             return combatLogArray;
@@ -216,17 +226,17 @@
 
         function getSpecialString(x, y){
             var list = [];
-            var outString = "";
+            var outList = [];
             list.push(getInformation(x-1, y).special);
             list.push(getInformation(x+1, y).special);
             list.push(getInformation(x, y-1).special);
             list.push(getInformation(x, y+1).special);
             for (special in specialList){
                 if(list.lastIndexOf(parseInt(special)) != -1){
-                    outString += specialList[special].signal + "\n";
+                    outList.push(specialList[special].signal);
                 }
             }
-            return outString;
+            return outList;
         }
 
 
@@ -294,15 +304,15 @@
                 player.y += dy;
                 player.visitedCoords.push([player.x, player.y]);
                 document.getElementById("info").innerHTML = getSpecialString(player.x, player.y);
+                draw();
                 if (getInformation(player.x, player.y).special == 3) {
-                    document.getElementById("battleLog").innerHTML = listToParagraphs(combatLog(getInformation(player.x, player.y), player));
+                    document.getElementById("battleLog").innerHTML = listToParagraphs(combatLog(getInformation(player.x, player.y).monster, player));
                     if (player.health < 0){
                         gameState = 0;
                     }
                 } else {
                     document.getElementById("battleLog").innerHTML = "";
                 }
-                draw();
             }
         }
 
@@ -421,6 +431,9 @@
                             case 3:
                                 ctx.drawImage(images.monster[getInformation(player.x, player.y).monster.type], 50, 50, 100, 100);
                                 break;
+                            case 4:
+                                ctx.drawImage(images.monsterDead, 50, 50, 100, 100);
+                                break;
                         }
                     } else {
                         ctx.drawImage(images.fog, 50+x*100, 50+y*100, 100, 100);
@@ -445,7 +458,7 @@
                         break;
                 }
             } else {
-                tx.drawImage(images.gameOver, 0, 0, 200, 200);
+                ctx.drawImage(images.gameOver, 0, 0, 200, 200);
             }
 
 
