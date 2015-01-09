@@ -16,21 +16,21 @@
         // Init_________________________________________________________________________________________________________
 
         // Model init---------------------------------------------------------------------------------------------------
-
+        var player, club, map, gridHeight, gridWidth, specialList, totalSpecialChance, monsterList;
         function initModel() {
 
 
             //Make a player object
-            var player = {"x": 0, "y": 0, "visitedCoords": [[0, 0]], "inventory": [], "score": 0, "health": 100};
+            player = {"x": 0, "y": 0, "visitedCoords": [[0, 0]], "inventory": [], "score": 0, "health": 100};
 
             //Give starting weapon
-            var club = {"dmg": 1, "price": 0}; //price could be used as score or maybe sold or bought or something like that
+            club = {"dmg": 1, "price": 0}; //price could be used as score or maybe sold or bought or something like that
             player.inventory.push(club);
 
             //Make an empty grid
-            var map = [];
-            var gridWidth = 250;
-            var gridHeight = 250;
+            map = [];
+            gridWidth = 250;
+            gridHeight = 250;
             for (var i = 0; i < gridWidth; i++) {
                 var temp = [];
                 for (var j = 0; j < gridHeight; j++) {
@@ -40,19 +40,19 @@
             }
 
             //SpecialList
-            var specialList = [
+            specialList = [
                 {"id": 0, "name": "Nothing Special", "signal": "", "chance": 10},
                 {"id": 1, "name": "Trap", "signal": "It's a trap!", "chance": 3},
                 {"id": 2, "name": "Treasure Room", "signal": "GOLDDDDDD", "chance": 1},
                 {"id": 3, "name": "Monster", "signal": "I smell a foul stetch! Bah", "chance": 3}
             ];
-            var totalSpecialChance = 0;
+            totalSpecialChance = 0;
             for (var special in specialList) {
                 totalSpecialChance += specialList[special].chance;
             }
 
             //Monsterlist   list with all monster in the game
-            var monsterList = [];
+            monsterList = [];
         }
 
         initModel();
