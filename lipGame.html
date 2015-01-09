@@ -28,6 +28,7 @@
                 this.health += healthChange;
                 document.getElementById("health").innerHTML = this.health;
                 if (this.health <= 0){
+                    this.health = 0;
                     gameState = 0;
                 }
             };
@@ -310,12 +311,17 @@
                 draw();
                 if (getInformation(player.x, player.y).special == 3) {
                     document.getElementById("battleLog").innerHTML = listToParagraphs(combatLog(getInformation(player.x, player.y).monster, player));
-                    if (player.health < 0){
+                    if (player.health < 0) {
                         gameState = 0;
+                        draw();
                     }
+                } else if(getInformation(player.x, player.y).special == 1){
+                    player.setHealth(-10);
+                    draw();
                 } else {
                     document.getElementById("battleLog").innerHTML = "";
                 }
+
             }
         }
 
@@ -484,7 +490,9 @@
             if (mouseY > elementSize*2/3 && mouseX > elementSize/3 && mouseX < elementSize*2/3){ newMouseA = 3;}
             if (newMouseA != mouseA){
                 mouseA = newMouseA;
-                draw();
+                if (gameState != 0) {
+                    draw();
+                }
             }
         }
 
@@ -493,7 +501,9 @@
             if (gameState != 0) {
                 move(mouseA);
             } else {
-                gameState = 1;
+                initModel();
+                generateMap();
+                draw();
             }
         }
 
