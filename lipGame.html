@@ -307,7 +307,7 @@
                 player.x += dx;
                 player.y += dy;
                 player.visitedCoords.push([player.x, player.y]);
-                document.getElementById("info").innerHTML = getSpecialString(player.x, player.y);
+                document.getElementById("info").innerHTML = listToParagraphs(getSpecialString(player.x, player.y));
                 draw();
                 if (getInformation(player.x, player.y).special == 3) {
                     document.getElementById("battleLog").innerHTML = listToParagraphs(combatLog(getInformation(player.x, player.y).monster, player));
