@@ -11,15 +11,17 @@
         <p id="health">100</p>
         <p>Block Information:</p>
         <p id="info"></p>
+        <p style="float: right;" id="battleLog"></p>
     </div>
     <script>
         // Init_________________________________________________________________________________________________________
 
         // Model init---------------------------------------------------------------------------------------------------
-        var player, club, map, gridHeight, gridWidth, specialList, totalSpecialChance, monsterList;
+        var player, club, map, gridHeight, gridWidth, specialList, totalSpecialChance, monsterList, gameState;
         function initModel() {
 
-
+            //Set the gamestate to 1, running
+            gameState = 1;
             //Make a player object
             player = {"x": 0, "y": 0, "visitedCoords": [[0, 0]], "inventory": [], "score": 0, "health": 100};
 
@@ -81,7 +83,8 @@
             "player":   new Image(),
             "monster": [
                 new Image()
-            ]
+            ],
+            "gameOver": new Image()
         };
         for (var i =0; i < 3; i++){
             for (var j =0; j < 3; j++) {
@@ -97,6 +100,8 @@
         images.treasure.src = gamefolder + "treasure.png";
         images.white.src = gamefolder + "white.png";
         images.player.src = gamefolder + "player.png";
+        images.gameOver.src = gamefolder + "gameOver.png";
+
 
 
         // View vars ###################################################################################################
@@ -255,6 +260,8 @@
 
 
         function move(a){
+
+
             // a = 0 right, a = 1 top, a = 2 left, a = 3 down.
             var dx = 0;
             var dy = 0;
@@ -274,13 +281,29 @@
                 default:
                     break;
             }
-            if (a != -1 && exists(player.x + dx, player.y + dy)){
+            if (a != -1 && exists(player.x + dx, player.y + dy)) {
                 player.x += dx;
                 player.y += dy;
                 player.visitedCoords.push([player.x, player.y]);
                 document.getElementById("info").innerHTML = getSpecialString(player.x, player.y);
+                if (getInformation(player.x, player.y).special == 3) {
+                    document.getElementById("battleLog").innerHTML = listToParagraphs(combatLog(getInformation(player.x, player.y), player));
+                    if (player.health < 0){
+                        gameState = 0;
+                    }
+                } else {
+                    document.getElementById("battleLog").innerHTML = "";
+                }
                 draw();
             }
+        }
+
+        function listToParagraphs(list){
+            var outString = "";
+            for (element in list){
+                outString += "<p>"+list[element]+"</p> ";
+            }
+            return outString;
         }
 
         function generateSpecial(){
@@ -396,21 +419,25 @@
                     }
                 }
             }
-            switch (mouseA){
-                case 0:
-                    ctx.drawImage(images.marker, 150, 50, 100, 100);
-                    break;
-                case 1:
-                    ctx.drawImage(images.marker, 50, -50, 100, 100);
-                    break;
-                case 2:
-                    ctx.drawImage(images.marker, -50, 50, 100, 100);
-                    break;
-                case 3:
-                    ctx.drawImage(images.marker, 50, 150, 100, 100);
-                    break;
-                default:
-                    break;
+            if (gameState != 0) {
+                switch (mouseA) {
+                    case 0:
+                        ctx.drawImage(images.marker, 150, 50, 100, 100);
+                        break;
+                    case 1:
+                        ctx.drawImage(images.marker, 50, -50, 100, 100);
+                        break;
+                    case 2:
+                        ctx.drawImage(images.marker, -50, 50, 100, 100);
+                        break;
+                    case 3:
+                        ctx.drawImage(images.marker, 50, 150, 100, 100);
+                        break;
+                    default:
+                        break;
+                }
+            } else {
+                tx.drawImage(images.gameOver, 0, 0, 200, 200);
             }
 
 
@@ -436,9 +463,13 @@
             }
         }
 
-        function mouseClick(e){
+        function mouseClick(e) {
             mouseMove(e);
-            move(mouseA);
+            if (gameState != 0) {
+                move(mouseA);
+            } else {
+                gameState = 1;
+            }
         }
 
         //Game start____________________________________________________________________________________________________
