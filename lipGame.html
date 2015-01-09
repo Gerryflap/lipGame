@@ -48,7 +48,7 @@
                 map.push(temp);
             }
 
-            //SpecialList
+            //SpecialList, the list with all special messages and their spawning rate (chance)
             specialList = [
                 {"id": 0, "name": "Nothing Special", "signal": "", "chance": 10},
                 {"id": 1, "name": "Trap", "signal": "It's a trap!", "chance": 3},
@@ -212,10 +212,12 @@
             return false;
         }
 
+        //Checks whether (x, y) exists(/is) in the grid.
         function exists(x, y){
             return (x >= 0 && x < gridWidth && y >= 0 && y < gridHeight);
         }
 
+        //Returns the object on (x, y) else (...?)
         function getInformation(x, y){
             if (x >= 0 && x < gridWidth && y >= 0 && y < gridHeight){
                 return map[x][y];
@@ -224,6 +226,7 @@
             }
         }
 
+        //Returns all special messages of the tiles around you (only vertical and horizontal)
         function getSpecialString(x, y){
             var list = [];
             var outList = [];
@@ -239,7 +242,7 @@
             return outList;
         }
 
-
+        //Generates the map
         function generateMap(){
             for ( var x = 0; x < gridWidth; x++){
                 for(var y = 0; y < gridHeight; y++){
@@ -324,6 +327,7 @@
             return outString;
         }
 
+        //Detrimens which tiles are special, and which special tiles it will be using the chance attribute
         function generateSpecial(){
             var choice = Math.random()*totalSpecialChance;
             for (var special in specialList){
