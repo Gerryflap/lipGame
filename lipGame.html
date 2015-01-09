@@ -156,18 +156,26 @@
             this.type = 0;
 
             //Methods:
-            this.checkHealth = new function() {
+            function checkHealth(monster) {
 
-                if (health <= 0) {
-                    //monster is killed, drop carriedItem, allocated swagger to player
+                if (monster.health <= 0) {
+                    //monster is killed, drop carriedItem, allocate swagger to player
                     if (carriedItem != 0) {
                         //if carriedItem is 0, do not add carriedItem to player.inventory
                         player.inventory.push(carriedItem);
                     }
                     player.score += swagger;
+                    //remove both references to monster instance, in monsterList and map(?)
                     //TODO remove monster
+                    for (var i = 0; i < monsterList.length; i++) {
+                        if (monsterList[i] == this) {
+                            monsterList.splice(i,1);
+                        }
+                    }
+                    getInformation(monster.x, monster.y).special = 0;
+                    getInformation(monster.x, monster.y).monster = null;
                 }
-            };
+            }
         }
 
         //returns a list with the whole combat log!
@@ -178,7 +186,7 @@
                 combatLogArray.push("The monster did " + enemy.dmg + " damage to you!");
                 player.health -= enemy.dmg;
                 combatLogArray.push("You have " + player.health + " left!");
-                combatLogArray.push('You lunge at the monster for' + playerHighestDmg() + 'damage!');
+                combatLogArray.push('You lunge at the monster for ' + playerHighestDmg() + ' damage!');
                 enemy.health -= playerHighestDmg();
                 //maybe add a string with some vague idea of the enemy his health? (str)
             }
