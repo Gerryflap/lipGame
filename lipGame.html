@@ -65,6 +65,7 @@
 
             //Monsterlist   list with all monster in the game
             monsterList = [];
+
         }
 
         initModel();
@@ -311,7 +312,6 @@
                 player.x += dx;
                 player.y += dy;
                 player.visitedCoords.push([player.x, player.y]);
-                document.getElementById("info").innerHTML = listToParagraphs(getSpecialString(player.x, player.y));
                 draw();
                 if (getInformation(player.x, player.y).special == 3) {
                     document.getElementById("battleLog").innerHTML = listToParagraphs(combatLog(getInformation(player.x, player.y).monster, player));
@@ -325,13 +325,13 @@
                 } else {
                     document.getElementById("battleLog").innerHTML = "";
                 }
-
+                updateInformation();
             }
         }
 
         function listToParagraphs(list){
             var outString = "";
-            for (element in list){
+            for (var element in list){
                 outString += "<p>"+list[element]+"</p> ";
             }
             return outString;
@@ -478,6 +478,11 @@
 
         }
 
+        function updateInformation(){
+            document.getElementById("info").innerHTML = listToParagraphs(getSpecialString(player.x, player.y));
+            document.getElementById("health").innerHTML = player.health;
+        }
+
         // Controller methods-------------------------------------------------------------------------------------------
 
 
@@ -508,6 +513,7 @@
                 initModel();
                 generateMap();
                 draw();
+                updateInformation();
             }
         }
 
@@ -515,6 +521,7 @@
 
         generateMap();
         draw();
+        updateInformation();
     </script>
 </body>
 </html>
